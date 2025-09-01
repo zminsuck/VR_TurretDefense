@@ -1,14 +1,7 @@
 fileFormatVersion: 2
-guid: b9006bf1a0b6b994bbe0d867a1c2f33a
+guid: fd2c0de6c1eb55d439cdfcb4b222b538
 PrefabImporter:
   externalObjects: {}
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 303479
-  packageName: Zap VFX - URP
-  packageVersion: 1.0.3
-  assetPath: Assets/Vefects/Zap VFX URP/VFX/Zap/Particles/VFX_Zap_05_Purple.prefab
-  uploadId: 778923
