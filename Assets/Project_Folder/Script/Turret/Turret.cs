@@ -96,7 +96,7 @@ public class Turret : MonoBehaviour
 
         Vector3 toTarget = (target.position - refMuzzle.position).normalized;
         float aimDot = Vector3.Dot(refMuzzle.forward, toTarget);
-        if (aimDot < 0.80f) return;
+        if (aimDot < 0.5f) return;
 
         fireCooldown = Mathf.Max(0.0001f, stats.CooldownSeconds);
 

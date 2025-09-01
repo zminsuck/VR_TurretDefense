@@ -3,72 +3,67 @@ using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [Header("Enemy Prefabs")]
+    [Header("Enemy Prefabs (여러 개)")]
     [SerializeField] private GameObject[] enemyPrefabs;
 
-    [Header("Spawn Settings")]
-    [SerializeField, Min(0.1f)] private float interval = 1.5f; // 생성 간격(초)
-    [SerializeField, Min(1)] private int count = 10;   // 생성 개수
-    [SerializeField] private float startDelay = 0f;            // 시작 딜레이
-    [SerializeField] private float spawnRadius = 0f;           // 0이면 정확히 스포너 위치
-    [SerializeField] private bool randomYRotation = true;      // Y축 랜덤 회전
+    [Header("Spawn Options")]
+    [SerializeField] private Transform goal;        // EnemyWalker가 있다면 넘겨줌
+    [SerializeField] private float spawnRadius = 0f;
+    [SerializeField] private bool randomYRotation = true;
 
-    [Header("Walker Target (선택)")]
-    [SerializeField] private Transform goal; // EnemyWalker가 있다면 SetTarget으로 전달
+    [Header("Tag/Layer 강제(옵션)")]
+    [SerializeField] private string enemyTag = "Enemy";
+    [SerializeField] private string enemyLayerName = "Enemy";
 
-    private Coroutine co;
+    public bool IsSpawning { get; private set; }
 
-    private void OnEnable()
+    int enemyLayer = -1;
+    void Awake()
     {
-        co = StartCoroutine(SpawnRoutine());
+        if (!string.IsNullOrEmpty(enemyLayerName))
+            enemyLayer = LayerMask.NameToLayer(enemyLayerName);
     }
 
-    private void OnDisable()
-    {
-        if (co != null) StopCoroutine(co);
-    }
-
-    private IEnumerator SpawnRoutine()
+    public IEnumerator SpawnWave(int count, float interval)
     {
         if (enemyPrefabs == null || enemyPrefabs.Length == 0) yield break;
 
-        if (startDelay > 0f) yield return new WaitForSeconds(startDelay);
-
+        IsSpawning = true;
         for (int i = 0; i < count; i++)
         {
             SpawnOne();
             if (i < count - 1) yield return new WaitForSeconds(interval);
         }
+        IsSpawning = false;
     }
 
-    private void SpawnOne()
+    public void SpawnOne()
     {
         var prefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Length)];
         if (!prefab) return;
 
-        // 위치/회전 결정
         Vector3 pos = transform.position;
         if (spawnRadius > 0f)
         {
-            Vector2 circle = Random.insideUnitCircle * spawnRadius;
-            pos += new Vector3(circle.x, 0f, circle.y);
+            Vector2 c = Random.insideUnitCircle * spawnRadius;
+            pos += new Vector3(c.x, 0f, c.y);
         }
-        Quaternion rot = randomYRotation
-            ? Quaternion.Euler(0f, Random.Range(0f, 360f), 0f)
-            : transform.rotation;
+        Quaternion rot = randomYRotation ? Quaternion.Euler(0f, Random.Range(0f, 360f), 0f) : transform.rotation;
 
-        // 생성
         var go = Instantiate(prefab, pos, rot);
 
-        // EnemyWalker가 있으면 목표 설정
+        // 목표 지정(직진형 EnemyWalker 사용 시)
         var walker = go.GetComponent<EnemyWalker>();
         if (walker && goal) walker.SetTarget(goal);
+
+        // 태그/레이어 통일
+        if (!string.IsNullOrEmpty(enemyTag)) go.tag = enemyTag;
+        if (enemyLayer >= 0) SetLayerRecursively(go, enemyLayer);
     }
 
-    private void OnDrawGizmosSelected()
+    void SetLayerRecursively(GameObject obj, int layer)
     {
-        if (spawnRadius <= 0f) return;
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, spawnRadius);
+        obj.layer = layer;
+        foreach (Transform t in obj.transform) SetLayerRecursively(t.gameObject, layer);
     }
 }

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3c9367f59d5a2f4d975c440f88ab496, type: 3}
   m_Name: Normal
   m_EditorClassIdentifier: 
-  range: 5
-  turnSpeed: 8
+  range: 8
+  turnSpeed: 10
   cooldownSeconds: 2.3
-  damage: 50
+  damage: 30
