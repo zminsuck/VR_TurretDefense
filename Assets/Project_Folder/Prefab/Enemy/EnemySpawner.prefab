@@ -52,6 +52,13 @@ MonoBehaviour:
   randomYRotation: 1
   enemyTag: Enemy
   enemyLayerName: Enemy
+  baseHP: 50
+  hpAddPerRound: 3
+  hpMultPerRound: 1.08
+  baseSpeed: 2
+  speedAddPerRound: 0.1
+  speedMultPerRound: 1.02
+  maxSpeedCap: 6
 --- !u!1 &2955137493625193360
 GameObject:
   m_ObjectHideFlags: 0

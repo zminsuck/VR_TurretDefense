@@ -129,6 +129,23 @@ public class RoundManager : MonoBehaviour
         onRoundStarted?.Invoke(CurrentRound);
     }
 
+    public void StopGame(bool cancelSpawns = true)
+    {
+        // 메인 라운드 루프 코루틴 중지
+        if (loopRoutine != null)
+        {
+            StopCoroutine(loopRoutine);
+            loopRoutine = null;
+        }
+
+        // 진행 중 스폰 코루틴도 정지
+        if (cancelSpawns && spawners != null)
+        {
+            foreach (var s in spawners)
+                if (s) s.CancelSpawns();  // 아래 2) 패치 필요
+        }
+    }
+
     // 헬퍼 메서드: 스포너 중 하나라도 스폰 중인지 여부를 확인하는 보조 함수
     bool AnySpawnerSpawning()
     {
