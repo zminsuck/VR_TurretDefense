@@ -1,3 +1,4 @@
+// Enemy.cs
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -8,19 +9,24 @@ public class Enemy : MonoBehaviour, IEnemy, IEnemySetup
     [SerializeField] private bool resetHpOnAwake = true;
 
     [Header("Move (선택)")]
-    [SerializeField] private EnemyWalker walker;   // 이동 담당(있으면 속도 세팅)
-    [SerializeField, Min(0f)] private float fallbackMoveSpeed = 0f; // Walker 없을 때 참조용
+    [SerializeField] private EnemyWalker walker;
+    [SerializeField, Min(0f)] private float fallbackMoveSpeed = 0f;
 
-    // 런타임
     private int currentHp;
 
     public int MaxHP => maxHp;
     public int CurrentHP => currentHp;
     public float HP01 => maxHp > 0 ? (float)currentHp / maxHp : 0f;
-    public System.Action<int, int> onHPChanged; // (cur,max)
-    // IEnemy
+    public System.Action<int, int> onHPChanged;
+
     public bool IsDead => currentHp <= 0;
     public Transform Transform => transform;
+
+    // 적 생성 시 GameManager에 알림
+    private void OnEnable()
+    {
+        GameManager.I?.OnEnemySpawned();
+    }
 
     private void Awake()
     {
@@ -29,14 +35,11 @@ public class Enemy : MonoBehaviour, IEnemy, IEnemySetup
         onHPChanged?.Invoke(currentHp, maxHp);
     }
 
-    // 라운드 스폰 직후 Spawner가 호출
     public void SetupStats(int maxHP, float moveSpeed)
     {
-        // HP 세팅
         maxHp = Mathf.Max(1, maxHP);
         currentHp = maxHp;
 
-        // 이동 속도 세팅
         if (walker) walker.SetSpeed(moveSpeed);
         else fallbackMoveSpeed = moveSpeed;
     }
@@ -52,6 +55,10 @@ public class Enemy : MonoBehaviour, IEnemy, IEnemySetup
 
     private void Die()
     {
+        // 적 사망 시 GameManager에 알림
+        GameManager.I?.OnEnemyKilled();
+        // 점수 추가 로직
+        // GameManager.I?.AddScore(10); 
         Destroy(gameObject);
     }
 
